@@ -1,0 +1,20 @@
+{
+  "name": "saproto-print",
+  "version": "0.0.1",
+  "description": "A small web-accessible print service that allows to print arbitrary PDF files over the internet.",
+  "keywords": [
+    "print",
+    "pdf"
+  ],
+  "author": {
+    "name": "Jonathan Juursema",
+    "email": "jonathan@proto.utwente.nl"
+  },
+  "dependencies": {
+    "download": "^5.0.2",
+    "express": "^4.14.0",
+    "fs": "0.0.2",
+    "printer": "^0.2.1",
+    "randomstring": "^1.1.5"
+  }
+}
