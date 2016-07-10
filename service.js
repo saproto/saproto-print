@@ -7,23 +7,55 @@ var randomstring = require("randomstring");
 
 var config = require('./config.js');
 
-console.log('\nThe following printers are available on this system.\nThose prefixed with an asterisk may be used by clients.');
+console.log('\nThe following printers are available on this system.');
 var printers = printer.getPrinters();
+var cardprinter = null, documentprinter = null;
 for (var i in printers) {
-    console.log('> [' + (config.printers.indexOf(printers[i].name) > -1 ? '*' : ' ') + '] ' + printers[i].name + ' (' + printers[i].datatype + ')');
+    var generic = true;
+    if (printers[i].name == config.printers.document) {
+        console.log('> Card printer: ' + printers[i].name + ' (' + printers[i].datatype + ')');
+        generic = false;
+    }
+    if (printers[i].name == config.printers.card) {
+        console.log('> Document printer: ' + printers[i].name + ' (' + printers[i].datatype + ')');
+        generic = false;
+    }
+    if (generic) {
+        console.log('> Unused printer: ' + printers[i].name + ' (' + printers[i].datatype + ')');
+    }
 }
 
 server.get('/', function (req, res) {
 
     // First, we get all needed data from the query string.
-    var printername, urltoprint, secret;
+    var printername, urltoprint, secret, selectedprinter;
 
     try {
 
+        // We only want authorized people to print, so we check the IP address.
+        if (config.ips.indexOf(req.ip) < 0) {
+            console.log('\nUnauthorized IP: ' + req.ip);
+            res.send('UNAUTHORIZED');
+            return;
+        }
+
         // We encode everything with base64 to prevent strange characters from corrupting the URL.
-        printername = new Buffer(req.query.printer, 'base64').toString('ascii');
-        urltoprint = new Buffer(req.query.url, 'base64').toString('ascii');
-        secret = new Buffer(req.query.secret, 'base64').toString('ascii');
+        data = JSON.parse(new Buffer(req.query.data, 'base64').toString('ascii'));
+
+        secret = data.secret;
+        printername = data.printer;
+        urltoprint = data.url;
+
+        // Check if a valid printer was selected.
+        if (printername == 'card') {
+            selectedprinter = config.printers.card;
+        } else if (printername == 'document') {
+            selectedprinter = config.printers.document;
+        } else {
+            console.log('\nInvalid printer supplied: ' + printername);
+            res.send('INVALID');
+            return;
+        }
 
         // We only want authorized people to print, so we check the secret.
         if (secret != config.secret) {
@@ -32,7 +64,7 @@ server.get('/', function (req, res) {
             return;
         }
 
-        console.log('\nPrintinging PDF to ' + printername + ' from the following location:\n' + urltoprint);
+        console.log('\nPrintinging PDF to ' + selectedprinter + ' (' + printername + ') from the following location:\n' + urltoprint);
 
         // Save the file with a random filename.
         var filename = randomstring.generate(32) + '.file';
@@ -46,7 +78,7 @@ server.get('/', function (req, res) {
         // Print the file.
         printer.printDirect({
 
-            printer: printername,
+            printer: selectedprinter,
             data: filesystem.readFileSync('downloads/' + filename),
             type: 'PDF',
             success: function (id) {
@@ -69,7 +101,7 @@ server.get('/', function (req, res) {
 
 });
 
-server.listen(config.port, function () {
+server.listen(config.port, config.host, function () {
     console.log('\nThe print server is now listening on port ' + config.port + '.')
 });
 

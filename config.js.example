@@ -1,0 +1,21 @@
+module.exports = {
+
+    // The port the HTTP server listens on.
+    host: '192.168.1.1',
+    port: 12345,
+
+    // The IP addresses that are allowed to use this server.
+    ips: [
+        '10.0.0.1'
+    ],
+
+    // The secret that needs to be supplied in order to print.
+    secret: 'ThisTokenIsNotSoSecretChangeIt',
+
+    // The printers that are available for printing.
+    printers: {
+        document: 'Brother HL-2250DN',
+        card: 'Zebra ZXP Series 1 USB Card Printer'
+    }
+
+};
