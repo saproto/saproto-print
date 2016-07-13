@@ -1,12 +1,12 @@
 module.exports = {
 
     // The port the HTTP server listens on.
-    host: '192.168.1.1',
+    host: '130.89.190.22',
     port: 12345,
 
     // The IP addresses that are allowed to use this server.
     ips: [
-        '10.0.0.1'
+        '37.97.129.76'
     ],
 
     // The secret that needs to be supplied in order to print.
@@ -16,6 +16,9 @@ module.exports = {
     printers: {
         document: 'Brother HL-2250DN',
         card: 'Zebra ZXP Series 1 USB Card Printer'
-    }
+    },
+
+    // The SumatraPDF executable file.
+    sumatra: "C:\\Program Files (x86)\\SumatraPDF\\SumatraPDF.exe"
 
 };

@@ -14,7 +14,6 @@
     "download": "^5.0.2",
     "express": "^4.14.0",
     "fs": "0.0.2",
-    "printer": "^0.2.1",
     "randomstring": "^1.1.5"
   }
 }

@@ -1,4 +1,3 @@
-var printer = require('printer');
 var express = require('express');
 var server = express();
 var filesystem = require('fs');
@@ -6,24 +5,6 @@ var download = require('download');
 var randomstring = require("randomstring");
 
 var config = require('./config.js');
-
-console.log('\nThe following printers are available on this system.');
-var printers = printer.getPrinters();
-var cardprinter = null, documentprinter = null;
-for (var i in printers) {
-    var generic = true;
-    if (printers[i].name == config.printers.document) {
-        console.log('> Card printer: ' + printers[i].name + ' (' + printers[i].datatype + ')');
-        generic = false;
-    }
-    if (printers[i].name == config.printers.card) {
-        console.log('> Document printer: ' + printers[i].name + ' (' + printers[i].datatype + ')');
-        generic = false;
-    }
-    if (generic) {
-        console.log('> Unused printer: ' + printers[i].name + ' (' + printers[i].datatype + ')');
-    }
-}
 
 server.get('/', function (req, res) {
 
@@ -71,24 +52,13 @@ server.get('/', function (req, res) {
         setTimeout(unLinkFile.bind(null, filename), 60000);
 
         download(urltoprint).pipe(filesystem.createWriteStream('downloads/' + filename));
+
         console.log('Downloaded ' + filename + '.');
 
+        spawn = require('child_process').spawn;
+        spawn(config.sumatra, ['downloads/' + filename, '-print-to', selectedprinter]);
+
         res.send('OK');
-
-        // Print the file.
-        printer.printDirect({
-
-            printer: selectedprinter,
-            data: filesystem.readFileSync('downloads/' + filename),
-            type: 'PDF',
-            success: function (id) {
-                console.log('Job started: ' + id + '.');
-            },
-            error: function (printerr) {
-                console.log('Error printing: ' + printerr.message);
-            }
-
-        });
 
     } catch (e) {
 

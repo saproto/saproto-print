@@ -1,8 +1,8 @@
 # saproto-print
-A small web-accessible print service that allows to print arbitrary PDF files over the internet.
+A small web-accessible print service that allows to print arbitrary PDF files over the internet for Windows. Uses the SumatraPDF executable to print via the command line.
 
 ## Configuration
-Copy the `config.js.example` file to `config.js.example` and change the values. The `host` and `port` attributes are for socket binding, the `ips` attribute is an array of IP addresses (not ranges) that are allowed to connect to the service, and the `secret` attritubte provides an additional layer of security. The `card` and `document` printers are the printers the application will use to print membership cards and regular documents respectively. These need to be the full names as shown when the service is started.
+Copy the `config.js.example` file to `config.js.example` and change the values. The `host` and `port` attributes are for socket binding, the `ips` attribute is an array of IP addresses (not ranges) that are allowed to connect to the service, and the `secret` attritubte provides an additional layer of security. The `card` and `document` printers are the printers the application will use to print membership cards and regular documents respectively. These need to be the full names. Don't forget to create a downloads folder in the services' directory.
 
 ## Usage
 In order to send a print command to this server, first let the client software assemble an object with the following properties:
