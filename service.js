@@ -48,17 +48,12 @@ server.get('/', function (req, res) {
         console.log('\nPrintinging PDF to ' + selectedprinter + ' (' + printername + ') from the following location:\n' + urltoprint);
 
         // Save the file with a random filename.
-        var filename = randomstring.generate(32) + '.file';
+        var filename = process.cwd() + '\\downloads\\' + randomstring.generate(32) + '.file';
         setTimeout(unLinkFile.bind(null, filename), 60000);
 
-        download(urltoprint).pipe(filesystem.createWriteStream('downloads/' + filename));
+        var stream = download(urltoprint).pipe(filesystem.createWriteStream(filename));
 
-        console.log('Downloaded ' + filename + '.');
-
-        spawn = require('child_process').spawn;
-        spawn(config.sumatra, ['downloads/' + filename, '-print-to', selectedprinter]);
-
-        res.send('OK');
+        stream.on('finish', sendToPrinter.bind(null, filename, selectedprinter, res, config.sumatra));
 
     } catch (e) {
 
@@ -77,9 +72,20 @@ server.listen(config.port, config.host, function () {
 
 function unLinkFile(filename) {
     try {
-        filesystem.unlinkSync('downloads/' + filename);
+        filesystem.unlinkSync(filename);
         console.log("\nUnlinked " + filename + ".");
     } catch (e) {
         console.log("\nSomething went wrong unlinking " + filename + ".")
     }
+}
+
+function sendToPrinter(filename, printer, res, sumatra) {
+
+    console.log('Downloaded ' + filename + '.');
+
+    spawn = require('child_process').spawn;
+    spawn(sumatra, [filename, '-print-to', printer]);
+
+    res.send('OK');
+
 }
