@@ -9,7 +9,7 @@ var config = require('./config.js');
 server.get('/', function (req, res) {
 
     // First, we get all needed data from the query string.
-    var printername, urltoprint, secret, selectedprinter;
+    var printername, urltoprint, secret, selectedprinter, copies;
 
     try {
 
@@ -26,6 +26,7 @@ server.get('/', function (req, res) {
         secret = data.secret;
         printername = data.printer;
         urltoprint = data.url;
+        copies = data.copies;
 
         // Check if a valid printer was selected.
         if (printername == 'card') {
@@ -53,12 +54,12 @@ server.get('/', function (req, res) {
 
         var stream = download(urltoprint).pipe(filesystem.createWriteStream(filename));
 
-        stream.on('finish', sendToPrinter.bind(null, filename, selectedprinter, res, config.sumatra));
+        stream.on('finish', sendToPrinter.bind(null, filename, selectedprinter, copies, res, config.sumatra));
 
     } catch (e) {
 
         // Something went wrong. This could be due to not all parameters being supplied!
-        console.log('Genertic error: ' + e.message);
+        console.log('Generic error: ' + e.message);
         res.send('ERROR_UNKNOWN');
         return;
 
@@ -67,7 +68,7 @@ server.get('/', function (req, res) {
 });
 
 server.listen(config.port, config.host, function () {
-    console.log('\nThe print server is now listening on port ' + config.port + '.')
+    console.log('\nThe print server is now listening on port ' + config.port + '.');
 });
 
 function unLinkFile(filename) {
@@ -75,16 +76,16 @@ function unLinkFile(filename) {
         filesystem.unlinkSync(filename);
         console.log("\nUnlinked " + filename + ".");
     } catch (e) {
-        console.log("\nSomething went wrong unlinking " + filename + ".")
+        console.log("\nSomething went wrong unlinking " + filename + ".");
     }
 }
 
-function sendToPrinter(filename, printer, res, sumatra) {
+function sendToPrinter(filename, printer, copies, res, sumatra) {
 
     console.log('Downloaded ' + filename + '.');
 
     spawn = require('child_process').spawn;
-    spawn(sumatra, [filename, '-print-to', printer]);
+    spawn(sumatra, [filename, '-print-to', printer, '-print-settings', copies + 'x']);
 
     res.send('OK');
 
